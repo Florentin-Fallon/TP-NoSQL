@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  # Service MongoDB
+  mongo:
+    image: mongo:latest
+    container_name: mongo_container
+    ports:
+      - "27018:27017" # Mapper le port 27017 du conteneur au port 27018 de l'hôte
+    volumes:
+      - mongo_data:/data/db # Persistance des données de MongoDB
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root # Utilisateur admin de MongoDB
+      MONGO_INITDB_ROOT_PASSWORD: example # Mot de passe admin
+
+  # Service pour ton application Node.js
+  app:
+    build: . # Indiquer à Docker de construire l'image à partir du Dockerfile
+    container_name: app_container
+    ports:
+      - "3000:3000" # Mapper le port de l'application (3000 dans le conteneur) au port de l'hôte
+    depends_on:
+      - mongo # S'assurer que MongoDB soit démarré avant l'application
+    environment:
+      MONGO_URI: mongodb://root:example@mongo:27017/myAppDB # URI de connexion à MongoDB dans Docker
+    volumes:
+      - .:/usr/src/app # Monter le code de l'application pour faciliter le développement
+
+volumes:
+  mongo_data:
